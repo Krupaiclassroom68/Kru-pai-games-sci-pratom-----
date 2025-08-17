@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>เกมถูกหรือผิด – การเปลี่ยนแปลงของสาร</title>
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      background: #fdfde6;
+      color: #222;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #ffe600;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #000;
+    }
+    .container {
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .question-block {
+      background: #fffef0;
+      border: 2px solid #f7d700;
+      border-radius: 10px;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+    }
+    .question {
+      font-weight: bold;
+      color: #e67e22;
+    }
+    .option {
+      margin: 8px 0;
+    }
+    button {
+      background: #222;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .result {
+      font-size: 20px;
+      text-align: center;
+      margin-top: 20px;
+      font-weight: bold;
+      color: green;
+    }
+    .start-screen, .quiz-screen, .result-screen {
+      display: none;
+    }
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      width: 80%;
+    }
+  </style>
+</head>
+<body>
+
+<header>✅ เกมถูกหรือผิด – การเปลี่ยนแปลงของสาร</header>
+
+<div class="container">
+
+  <div class="start-screen">
+    <h2>ยินดีต้อนรับสู่เกมวิทยาศาสตร์!</h2>
+    <p>กรุณากรอกชื่อของคุณเพื่อเริ่มเล่น:</p>
+    <input type="text" id="playerName" placeholder="ชื่อนักเรียน">
+    <br><br>
+    <button onclick="startQuiz()">เริ่มเกม</button>
+  </div>
+
+  <div class="quiz-screen">
+    <div id="quizArea"></div>
+    <button onclick="submitQuiz()">ส่งคำตอบ</button>
+  </div>
+
+  <div class="result-screen">
+    <h2>ผลคะแนนของคุณ</h2>
+    <div id="scoreDisplay" class="result"></div>
+    <br>
+    <button onclick="location.reload()">กลับไปหน้าแรก</button>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+{question: "การต้มไข่ถือเป็นการเปลี่ยนแปลงทางเคมี", answer: "True"},
+{question: "การละลายน้ำตาลในน้ำเป็นการเปลี่ยนแปลงทางกายภาพ", answer: "True"},
+{question: "การเผากระดาษเป็นการเปลี่ยนแปลงทางกายภาพ", answer: "False"},
+{question: "การระเหยของน้ำหอมเป็นการเปลี่ยนแปลงทางเคมี", answer: "False"},
+{question: "การขึ้นสนิมของเหล็กเป็นการเปลี่ยนแปลงทางเคมี", answer: "True"},
+{question: "การแช่น้ำแข็งแล้วละลายเป็นการเปลี่ยนแปลงทางเคมี", answer: "False"},
+{question: "การทำน้ำเกลือเป็นสารละลาย", answer: "True"},
+{question: "การละลายน้ำตาลลงในน้ำเกิดตะกอน", answer: "False"},
+{question: "การทอดไข่เป็นการเปลี่ยนแปลงทางเคมี", answer: "True"},
+{question: "การทุบขวดแก้วให้แตกเป็นการเปลี่ยนแปลงทางกายภาพ", answer: "True"},
+{question: "การควบแน่นของไอน้ำบนฝาขวดเป็นการเปลี่ยนแปลงทางเคมี", answer: "False"},
+{question: "การทำให้เกลือแห้งด้วยแสงแดดคือการระเหย", answer: "True"},
+{question: "การระเหิดของการบูรเป็นการเปลี่ยนแปลงทางกายภาพ", answer: "True"},
+{question: "การสังเคราะห์แสงของพืชเป็นการเปลี่ยนแปลงทางเคมี", answer: "True"},
+{question: "การกรองกาแฟเป็นการเปลี่ยนแปลงทางเคมี", answer: "False"},
+{question: "การละลายน้ำตาลสามารถได้สารคืนเมื่อระเหยน้ำ", answer: "True"},
+{question: "การระเหิดต้องมีอุณหภูมิสูงกว่า 100 องศาเสมอ", answer: "False"},
+{question: "การควบแน่นคือการเปลี่ยนสถานะจากของเหลวเป็นของแข็ง", answer: "False"},
+{question: "สารละลายคือสารที่มีตัวทำละลายและตัวถูกละลาย", answer: "True"},
+{question: "การตีทองแดงให้แบนเป็นการเปลี่ยนทางเคมี", answer: "False"},
+
+];
+
+function startQuiz() {
+  const name = document.getElementById("playerName").value.trim();
+  if (name === "") {
+    alert("กรุณากรอกชื่อก่อนเริ่มเกม");
+    return;
+  }
+  document.querySelector(".start-screen").style.display = "none";
+  document.querySelector(".quiz-screen").style.display = "block";
+
+  const quizArea = document.getElementById("quizArea");
+  questions.forEach((q, index) => {
+    const qDiv = document.createElement("div");
+    qDiv.classList.add("question-block");
+    qDiv.innerHTML = `<div class='question'>${index + 1}. ${q.question}</div>`;
+
+    qDiv.innerHTML += `
+      <div class='option'>
+        <label><input type="radio" name="q${index}" value="True"> ถูก</label>
+      </div>
+      <div class='option'>
+        <label><input type="radio" name="q${index}" value="False"> ผิด</label>
+      </div>`;
+
+    quizArea.appendChild(qDiv);
+  });
+}
+
+function submitQuiz() {
+  let score = 0;
+  questions.forEach((q, index) => {
+    const selected = document.querySelector(`input[name="q${index}"]:checked`);
+    if (selected && selected.value === q.answer) {
+      score++;
+    }
+  });
+  document.querySelector(".quiz-screen").style.display = "none";
+  document.querySelector(".result-screen").style.display = "block";
+  document.getElementById("scoreDisplay").innerText = `คุณได้ ${score} คะแนน จากทั้งหมด ${questions.length} ข้อ`;
+}
+
+document.querySelector(".start-screen").style.display = "block";
+</script>
+
+</body>
+</html>
